@@ -5,23 +5,29 @@
 # It provides the bare essentials of the simplest bot.
 
 require 'socket'
+require_relative 'db.class.rb'
 
 class Bot 
  
-  attr_accessor :mHostname  # the hostname of the irc server
-  attr_accessor :mPort      # the port to connect to (standard should be 6667)
-  attr_accessor :mChannel   # the channel to join
-  attr_accessor :mNick      # the nick of the bot
-  attr_reader   :mSocket    # the socket information stored as member
-
+  attr_accessor :mHostname    # the hostname of the irc server
+  attr_accessor :mPort        # the port to connect to (standard should be 6667)
+  attr_accessor :mChannel     # the channel to join
+  attr_accessor :mNick        # the nick of the bot
+  attr_accessor :mStoreMethod # How to store the message (flat file, mysql, ...)
+  attr_reader   :mSocket      # the socket information stored as member
+  attr_reader   :mDBHandle    # the db handler stored as object
 public 
   # default constructor 
-  def initialize(hostname,port,channel,nick)
+  def initialize(hostname,port,channel,nick,strmethod=0)
     @mHostname = hostname
     @mPort = port.to_i
     @mChannel = channel
     @mNick = nick 
     @mList = Array.new
+    @mStoreMethod = strmethod
+    
+    # Create the object only if needed. 
+    if @mStoreMethod == 0 then @mDBHandle.new('','','','') end
 
     puts "Rubicante was initialized with following credentials"
     puts "  - hostname " + @mHostname
@@ -100,4 +106,18 @@ public
     end
   end
 
+private
+  
+  # Simple interface for choosing between different mediums of
+  # storage for each case.
+  def store(msg)
+    case @mStoreMethod
+      when 0 # FLAT FILE
+      
+      when 1 # MYSQL 
+
+    end
+  end
+
 end
+
