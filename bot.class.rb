@@ -16,6 +16,7 @@ class Bot
   attr_accessor :mStoreMethod # How to store the message (flat file, mysql, ...)
   attr_reader   :mSocket      # the socket information stored as member
   attr_reader   :mDBHandle    # the db handler stored as object
+  attr_accessor :mStatus      # holds the status of the bot
 
   # Default constructor (see the parameter list for more info)
   #  *hostname: (eg: irc.freenode.net)
@@ -35,6 +36,9 @@ class Bot
     @mNick = nick 
     @mList = Array.new
     @mStoreMethod = strmethod
+    # status of 0 is active
+    @mStatus = 0
+
     
     # Create the object only if needed. 
     # IMPORTANT - You need to suply the info to your mysql database in this part
@@ -72,9 +76,12 @@ class Bot
 
   # Interface function for starting up everything
   def start
-    while 1
+    while 1 and @mSocket == nil
       connect
       monitor
+    end
+    if @mStatus == 1
+      destroy
     end
   end
 
@@ -109,9 +116,10 @@ private
 
   def storeDebug(msg)
     dt = Time.now.localtime
+    msg = dt.hour.to_s + ":" + dt.min.to_s + ":" + dt.sec.to_s + " -- " + msg + "\n"
     fname =  dt.year.to_s + "_" + dt.month.to_s + "_" + dt.day.to_s
     fh = File.open("debug-logs/" + fname + ".txt", "a")
-    fh.write(msg + "\n")
+    fh.write(msg)
     fh.close
   end
 
@@ -131,29 +139,36 @@ private
   end
 
   def msgChannel(msg)
-    @mSocket.puts "PRIVMSG #{@mChannel} " + msg
+    @mSocket.puts("PRIVMSG #{@mChannel} " + msg)
   end
 
   def monitor
-    until @mSocket.eof? or $active == false do
+    until @mSocket.eof? or @mStatus > 0 do
       msg = @mSocket.gets
               
       # respond to server pings
       if msg =~ /ping/i 
         @mSocket.puts "PONG :pingis "
         storeDebug("Received ping, sent pong")
-      elsif msg =~ /rubicante (\w+)/i
+      elsif msg =~ /rubicante (\w+) (.*)/i
         case $1
         when "ping"
           msgChannel("pong :pingis ")
         #when "op"
         #  @mSocket.puts "MODE 
-        #when "restart"
-        #  $restart = true
+        when "reload"
+	  # A status of 2 is restarting
+          @mStatus = 2
+	  storeDebug("reloading class")
+	  msgChannel("reloading class")
         when "die"
+	  # A status of 1 is dying
 	  msgChannel("you killed me!")
           storeDebug("received die command")
-          $active = false
+          @mStatus = 1
+	  @mSocket.puts "QUIT"
+	when "do"
+	  @mSocket.puts $2
         end
       else
         # make the message have a prefix of a unix timestamp
