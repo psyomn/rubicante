@@ -1,6 +1,11 @@
-require_relative 'bot.class.rb'
+require 'bot.class.rb'
 
-botty = Bot.new('irc.freenode.net', 6667, '#spaceconcordia', 'rubicante', 1)
+botty = Bot.new('irc.freenode.net', 6667, '#spaceconcordia', 'rubicante', 0)
+$active = true
+while 1
+  botty.start
+end
 
-botty.start
+#ugly hack
+#`ruby main.rb`
 

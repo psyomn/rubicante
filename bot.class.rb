@@ -5,7 +5,7 @@
 # It provides the bare essentials of the simplest bot.
 
 require 'socket'
-require_relative 'db.class.rb'
+require 'db.class.rb'
 
 class Bot 
  
@@ -41,15 +41,15 @@ class Bot
     # TODO maybe the credentials should be set in a different way instead of 
     #      hardcoding them. 
     #   usage: DBLogs.new('host','username','password','databasename')
-    if @mStoreMethod == 1 then @mDBHandle = DBLogs.new('','','','') end
+    if @mStoreMethod == 1 then @mDBHandle = DBLogs.new('localhost','rubicante','ruby-bot','rubicante') end
 
-    puts "Rubicante was initialized with following credentials"
-    puts "  - hostname " + @mHostname
-    puts "  - mPort    " + @mPort.to_s
-    puts "  - mChannel " + @mChannel
-    puts "  - mNick    " + @mNick
-    if @mStoreMethod == 0 then puts "  - Using flat file storage" end
-    if @mStoreMethod == 1 then puts "  - Using database storage system " end
+    storeDebug("Rubicante was initialized with following credentials")
+    storeDebug("  - hostname " + @mHostname)
+    storeDebug("  - mPort    " + @mPort.to_s)
+    storeDebug("  - mChannel " + @mChannel)
+    storeDebug("  - mNick    " + @mNick)
+    if @mStoreMethod == 0 then storeDebug("  - Using flat file storage") end
+    if @mStoreMethod == 1 then storeDebug("  - Using database storage system ") end
     
     ObjectSpace.define_finalizer(self, (:destroy).to_proc)
   end
@@ -67,12 +67,15 @@ class Bot
       fh.close
       @mList.clear
     end
-    puts "Dumped final logs."
+    storeDebug("Dumped final logs.")
   end
 
   # Interface function for starting up everything
   def start
-    connect
+    while 1
+      connect
+      monitor
+    end
   end
 
 private
@@ -98,10 +101,18 @@ private
         fh = File.open("logs/" + fname + ".txt", "a")
         fh.write(str)
         fh.close
-        puts "Dumped logs."     
+        storeDebug("Dumped logs.")
       when 1 # MYSQL 
         @mDBHandle.storeMessage(msg) 
     end
+  end
+
+  def storeDebug(msg)
+    dt = Time.now.localtime
+    fname =  dt.year.to_s + "_" + dt.month.to_s + "_" + dt.day.to_s
+    fh = File.open("debug-logs/" + fname + ".txt", "a")
+    fh.write(msg + "\n")
+    fh.close
   end
 
   # connection routine to connect to the irc server
@@ -113,17 +124,37 @@ private
     @mSocket.puts "USER testing 0 * Testing"
     @mSocket.puts "NICK #{@mNick}"
     @mSocket.puts "JOIN #{@mChannel}"
+    @mSocket.puts "PRIVMSG NickServ identify ruby-bot"
 
     # print the silly message for the lolz
     rubicante_message 
+  end
 
-    until @mSocket.eof? do
+  def msgChannel(msg)
+    @mSocket.puts "PRIVMSG #{@mChannel} " + msg
+  end
+
+  def monitor
+    until @mSocket.eof? or $active == false do
       msg = @mSocket.gets
               
       # respond to server pings
       if msg =~ /ping/i 
         @mSocket.puts "PONG :pingis "
-        puts "Received ping, sent pong"
+        storeDebug("Received ping, sent pong")
+      elsif msg =~ /rubicante (\w+)/i
+        case $1
+        when "ping"
+          msgChannel("pong :pingis ")
+        #when "op"
+        #  @mSocket.puts "MODE 
+        #when "restart"
+        #  $restart = true
+        when "die"
+	  msgChannel("you killed me!")
+          storeDebug("received die command")
+          $active = false
+        end
       else
         # make the message have a prefix of a unix timestamp
         # and store it only if it's not a ping from server

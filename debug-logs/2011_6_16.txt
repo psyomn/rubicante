@@ -1,0 +1,1 @@
+Rubicante was initialized with following credentials  - hostname irc.freenode.net  - mPort    6667  - mChannel #spaceconcordia  - mNick    rubicante  - Using flat file storageRubicante was initialized with following credentials  - hostname irc.freenode.net  - mPort    6667  - mChannel #spaceconcordia  - mNick    rubicante  - Using flat file storage

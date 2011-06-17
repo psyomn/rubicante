@@ -1,0 +1,215 @@
+Rubicante was initialized with following credentials  - hostname irc.freenode.net  - mPort    6667  - mChannel #spaceconcordia  - mNick    rubicante  - Using flat file storageDumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Rubicante was initialized with following credentials  - hostname irc.freenode.net  - mPort    6667  - mChannel #spaceconcordia  - mNick    rubicante  - Using flat file storageDumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Received ping, sent pongDumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Rubicante was initialized with following credentials  - hostname irc.freenode.net  - mPort    6667  - mChannel #spaceconcordia  - mNick    rubicante  - Using flat file storageDumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Dumped logs.Received ping, sent pongRubicante was initialized with following credentials
+  - hostname irc.freenode.net
+  - mPort    6667
+  - mChannel #spaceconcordia
+  - mNick    rubicante
+  - Using flat file storage
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Received ping, sent pong
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Received ping, sent pong
+Received ping, sent pong
+Received ping, sent pong
+Received ping, sent pong
+Received ping, sent pong
+Received ping, sent pong
+Received ping, sent pong
+Received ping, sent pong
+Received ping, sent pong
+Received ping, sent pong
+Received ping, sent pong
+Received ping, sent pong
+Received ping, sent pong
+Received ping, sent pong
+Received ping, sent pong
+Received ping, sent pong
+Received ping, sent pong
+Received ping, sent pong
+Received ping, sent pong
+Received ping, sent pong
+Received ping, sent pong
+Received ping, sent pong
+Dumped logs.
+Received ping, sent pong
+Dumped logs.
+Received ping, sent pong
+received die command
+Received ping, sent pong
+Received ping, sent pong
+Rubicante was initialized with following credentials
+  - hostname irc.freenode.net
+  - mPort    6667
+  - mChannel #spaceconcordiabottest
+  - mNick    rubicante-beta
+  - Using flat file storage
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Received ping, sent pong
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Dumped logs.
+Received ping, sent pong
+received die command
+Received ping, sent pong
+Received ping, sent pong
+Received ping, sent pong
+Received ping, sent pong
+Received ping, sent pong
+Received ping, sent pong
