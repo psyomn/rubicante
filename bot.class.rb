@@ -6,6 +6,7 @@
 
 require 'socket'
 require 'db.class.rb'
+require 'ftools'
 
 class Bot 
  
@@ -66,22 +67,26 @@ class Bot
       str = @mList.join
       dt = Time.now.localtime
       fname =  dt.year.to_s + "_" + dt.month.to_s + "_" + dt.day.to_s
-      fh = File.open("logs/" + fname + ".txt", "a")
+      fh = File.open("logs/" + fname, "a")
       fh.write(str)
       fh.close
       @mList.clear
     end
+    @mSocket.close
     storeDebug("Dumped final logs.")
   end
 
   # Interface function for starting up everything
   def start
-    while 1 and @mSocket == nil
+    while 1
       connect
       monitor
-    end
-    if @mStatus == 1
-      destroy
+      if @mStatus == 1
+        destroy
+	break
+      elsif @mStatus == 2
+	break
+      end
     end
   end
 
@@ -89,9 +94,10 @@ private
  
   # and our obligatory FF quote here.
   def rubicante_message
-    @mSocket.puts "PRIVMSG #{@mChannel} : I respect men like you. Men with...courage. " + 
-    " But you are a slave to your emotions, and so will never know true strength." + 
-    " Such is the curse of men."
+    #@mSocket.puts "PRIVMSG #{@mChannel} : I respect men like you. Men with...courage. " + 
+    #" But you are a slave to your emotions, and so will never know true strength." + 
+    #" Such is the curse of men."
+    @mSocket.puts "Long ago in a distant land, I, Aku, the shape-shifting Master of Darkness, unleashed an unspeakable evil..."
   end 
 
   # Simple interface for choosing between different mediums of
@@ -99,7 +105,8 @@ private
   def store(msg)
     case @mStoreMethod
       when 0 # FLAT FILE
-        str = Time.now.to_i.to_s + " " + msg 
+        dt = Time.now.localtime
+	str = dt.hour.to_s + ":" + dt.min.to_s + ":" + dt.sec.to_s + " -- " + msg 
 
         # Less redundant writting
         # filenames are date, easy archiving, and date search for later
@@ -116,7 +123,8 @@ private
 
   def storeDebug(msg)
     dt = Time.now.localtime
-    msg = dt.hour.to_s + ":" + dt.min.to_s + ":" + dt.sec.to_s + " -- " + msg + "\n"
+    msg = dt.to_s + ' -- ' + msg
+    #msg = dt.hour.to_s + ":" + dt.min.to_s + ":" + dt.sec.to_s + " -- " + msg
     fname =  dt.year.to_s + "_" + dt.month.to_s + "_" + dt.day.to_s
     fh = File.open("debug-logs/" + fname + ".txt", "a")
     fh.write(msg)
@@ -144,36 +152,78 @@ private
 
   def monitor
     until @mSocket.eof? or @mStatus > 0 do
-      msg = @mSocket.gets
-              
+      raw = @mSocket.gets
+      storeDebug(raw)
+
+      raw =~ /(:([^!]+)![^@]+@[\S]+ )?([A-Z]+) ([#\w\-\.]+ )?:(.*)/i
+      nick    = $2
+      command = $3
+      obj     = $4
+      extra   = $5
+
       # respond to server pings
-      if msg =~ /ping/i 
-        @mSocket.puts "PONG :pingis "
-        storeDebug("Received ping, sent pong")
-      elsif msg =~ /rubicante (\w+) (.*)/i
-        case $1
-        when "ping"
-          msgChannel("pong :pingis ")
+      case command
+      when "PING"
+	@mSocket.puts "PONG :pingis"
+	storeDebug(raw)
+        storeDebug("Received ping, sent pong\n")
+      when "JOIN"
+	msg = nick + ' joined ' + extra
+	store(msg)
+      when "PRIVMSG"
+	#storeDebug("got a msg " + obj + @mChannel + " \n")
+	  msg = '[' + nick + '] ' + extra
+	  store(msg)
+       
+	if obj == @mNick
+	  extra =~ /(\w) (.*)/i
+	  if    $1 == 'do'
+	    @mSocket.puts $2
+	  elsif $1 == 'op'
+	    @mSocket.puts 'MODE '
+	  elsif $1 == 'reload'
+            # A status of 2 is restarting
+            @mStatus = 2
+            storeDebug("reloading class")	
+	  elsif $1 == 'die'
+            # A status of 1 is dying
+            msgChannel "you killed me!"
+            storeDebug("received die command")
+            @mStatus = 1
+            @mSocket.puts "QUIT"
+            @mSocket.close
+	  end
+	end
+      when "QUIT"
+	msg = nick + ' quit with the words: ' + extra
+	store(msg)
+#      elsif raw =~ /rubicante (\w+)(.*)/i
+#	case $1
+#       when "ping"
+#        msgChannel("pong :pingis ")
+#	  storeDebug("ping requested")
         #when "op"
         #  @mSocket.puts "MODE 
-        when "reload"
+#        when "reload"
 	  # A status of 2 is restarting
-          @mStatus = 2
-	  storeDebug("reloading class")
-	  msgChannel("reloading class")
-        when "die"
-	  # A status of 1 is dying
-	  msgChannel("you killed me!")
-          storeDebug("received die command")
-          @mStatus = 1
-	  @mSocket.puts "QUIT"
-	when "do"
-	  @mSocket.puts $2
-        end
-      else
+#          @mStatus = 2
+#	  storeDebug("reloading class")
+	  #msgChannel("reloading")
+#        when "die"
+#	  # A status of 1 is dying
+#	  msgChannel "you killed me!"
+#          storeDebug("received die command")
+#          @mStatus = 1
+#	  @mSocket.puts "QUIT"
+#	  @mSocket.close
+#	when "do"
+#	  @mSocket.puts $2
+#        end
+#	store(raw)
+#      else
         # make the message have a prefix of a unix timestamp
         # and store it only if it's not a ping from server
-        store(msg)
+#        store(raw)
       end
 
     end
