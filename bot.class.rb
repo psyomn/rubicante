@@ -18,6 +18,7 @@ class Bot
   attr_reader   :mSocket      # the socket information stored as member
   attr_reader   :mDBHandle    # the db handler stored as object
   attr_accessor :mStatus      # holds the status of the bot
+  attr_accessor :mUptime
 
   # Default constructor (see the parameter list for more info)
   #  *hostname: (eg: irc.freenode.net)
@@ -39,6 +40,7 @@ class Bot
     @mStoreMethod = strmethod
     # status of 0 is active
     @mStatus = 0
+    @mUptime = Time.now()
 
     
     # Create the object only if needed. 
@@ -113,7 +115,9 @@ private
         dt = Time.now.localtime
         fname =  dt.year.to_s + "_" + dt.month.to_s + "_" + dt.day.to_s
         fh = File.open("logs/" + fname + ".txt", "a")
-        fh.write(str)
+	#if (@mNick != 'rubicante-beta')
+          fh.write(str)
+	#end
         fh.close
         storeDebug("Dumped logs.")
       when 1 # MYSQL 
@@ -147,12 +151,27 @@ private
   end
 
   def msgChannel(msg)
-    @mSocket.puts("PRIVMSG #{@mChannel} " + msg)
+    @mSocket.puts("PRIVMSG #{@mChannel} :" + msg)
   end
 
   def monitor
-    until @mSocket.eof? or @mStatus > 0 do
-      raw = @mSocket.gets
+    until @mSocket.eof? or @mStatus > 0 do 
+      #raw = ''
+      #read = ''
+      #while read != '\n'
+	#read = @mSocket.recvfrom(1)
+        #raw += read
+      #end
+      data = ""
+      recv_length = 1
+      while (tmp = @mSocket.readpartial(recv_length))
+        data += tmp
+        break if (tmp == "\n")
+      end
+
+      raw = data
+	
+      #raw = @mSocket.gets
       storeDebug(raw)
 
       raw =~ /(:([^!]+)![^@]+@[\S]+ )?([A-Z]+) ([#\w\-\.]+ )?:(.*)/i
@@ -165,33 +184,46 @@ private
       case command
       when "PING"
 	@mSocket.puts "PONG :pingis"
-	storeDebug(raw)
         storeDebug("Received ping, sent pong\n")
       when "JOIN"
 	msg = nick + ' joined ' + extra
 	store(msg)
       when "PRIVMSG"
 	#storeDebug("got a msg " + obj + @mChannel + " \n")
+        if obj == @mChannel + ' '
 	  msg = '[' + nick + '] ' + extra
 	  store(msg)
-       
-	if obj == @mNick
-	  extra =~ /(\w) (.*)/i
-	  if    $1 == 'do'
+	end
+	if obj == @mNick + ' '
+	  extra =~ /(\w*) (.*)/i
+	  dd = $1
+	  if    dd == 'do'
 	    @mSocket.puts $2
-	  elsif $1 == 'op'
+	    puts "do"
+	  elsif dd == 'op'
 	    @mSocket.puts 'MODE '
-	  elsif $1 == 'reload'
+	    puts "op"
+	  elsif dd == 'reload'
             # A status of 2 is restarting
             @mStatus = 2
             storeDebug("reloading class")	
-	  elsif $1 == 'die'
+	    msgChannel('reloading class')
+	    puts "reload"
+	  elsif dd == 'die'
             # A status of 1 is dying
             msgChannel "you killed me!"
             storeDebug("received die command")
             @mStatus = 1
             @mSocket.puts "QUIT"
             @mSocket.close
+	    puts "die"
+          elsif dd == 'uptime'
+            uptime = Time.now - @mUptime
+	    #msgChannel(uptime)
+	    puts Time.now
+	    puts @mUptime
+	    puts uptime
+	    puts 'uptime is '
 	  end
 	end
       when "QUIT"
