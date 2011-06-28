@@ -5,6 +5,7 @@
 # It provides the bare essentials of the simplest bot.
 
 require 'socket'
+require 'net/telnet'
 require 'db.class.rb'
 require 'ftools'
 
@@ -38,9 +39,9 @@ class Bot
     @mNick = nick 
     @mList = Array.new
     @mStoreMethod = strmethod
-    # status of 0 is active
+    # status of 0 is disconnected
     @mStatus = 0
-    @mUptime = Time.now()
+    @mUptime = Time.now
 
     
     # Create the object only if needed. 
@@ -109,17 +110,16 @@ private
       when 0 # FLAT FILE
         dt = Time.now.localtime
 	str = dt.hour.to_s + ":" + dt.min.to_s + ":" + dt.sec.to_s + " -- " + msg 
+	str = '[' + dt.strftime("%H:%M:%S") + '] ' + msg 
 
         # Less redundant writting
         # filenames are date, easy archiving, and date search for later
         dt = Time.now.localtime
         fname =  dt.year.to_s + "_" + dt.month.to_s + "_" + dt.day.to_s
         fh = File.open("logs/" + fname + ".txt", "a")
-	#if (@mNick != 'rubicante-beta')
-          fh.write(str)
-	#end
+        fh.write(str)
         fh.close
-        storeDebug("Dumped logs.")
+        storeDebug("Dumped logs.\n")
       when 1 # MYSQL 
         @mDBHandle.storeMessage(msg) 
     end
@@ -138,13 +138,17 @@ private
   # connection routine to connect to the irc server
   # it also satisfies basic protocol requirements. 
   def connect
-    @mSocket = TCPSocket.open(@mHostname,@mPort)
+    @mSocket = Net::Telnet::new("Host" => @mHostname,"Port" => @mPort)
     print("addr| ", @mSocket.addr.join(":"), "\n")
     print("peer| ", @mSocket.peeraddr.join(":"), "\n")
-    @mSocket.puts "USER testing 0 * Testing"
+    @mSocket.puts "USER rubybot 0 * Testing"
     @mSocket.puts "NICK #{@mNick}"
     @mSocket.puts "JOIN #{@mChannel}"
-    @mSocket.puts "PRIVMSG NickServ identify ruby-bot"
+    #@mSocket.puts "PRIVMSG NickServ identify ruby-bot"
+
+    # Status of -1 is active / connected
+    # I know, this doesn't make much sense
+    @mStatus = -1
 
     # print the silly message for the lolz
     rubicante_message 
@@ -155,23 +159,20 @@ private
   end
 
   def monitor
-    until @mSocket.eof? or @mStatus > 0 do 
-      #raw = ''
-      #read = ''
-      #while read != '\n'
-	#read = @mSocket.recvfrom(1)
-        #raw += read
-      #end
-      data = ""
-      recv_length = 1
-      while (tmp = @mSocket.readpartial(recv_length))
-        data += tmp
-        break if (tmp == "\n")
+    r = Regexp.new("(.+)\n") # simple matching
+    until @mSocket.eof? or @mStatus >= 0 do 
+     
+      begin
+	# wait for a simple newline match
+	raw = @mSocket.waitfor("Match" => r, "Timeout" => 200)
+      rescue
+	# we've been disconnected; pings from server should happen every ~120-180 seconds
+        @mStatus = 0
+	break
       end
 
-      raw = data
-	
       #raw = @mSocket.gets
+      
       storeDebug(raw)
 
       raw =~ /(:([^!]+)![^@]+@[\S]+ )?([A-Z]+) ([#\w\-\.]+ )?:(.*)/i
@@ -191,17 +192,18 @@ private
       when "PRIVMSG"
 	#storeDebug("got a msg " + obj + @mChannel + " \n")
         if obj == @mChannel + ' '
-	  msg = '[' + nick + '] ' + extra
+	  msg = '<' + nick + '> ' + extra
 	  store(msg)
 	end
 	if obj == @mNick + ' '
-	  extra =~ /(\w*) (.*)/i
+	  extra =~ /(\w+)([ ]?)(.*)/i
 	  dd = $1
 	  if    dd == 'do'
 	    @mSocket.puts $2
 	    puts "do"
 	  elsif dd == 'op'
-	    @mSocket.puts 'MODE '
+	    puts "op"
+	    @mSocket.puts 'MODE ' + @mChannel + ' +o ' + nick
 	    puts "op"
 	  elsif dd == 'reload'
             # A status of 2 is restarting
