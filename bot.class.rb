@@ -81,15 +81,16 @@ class Bot
 
   # Interface function for starting up everything
   def start
-    while 1
+    while @mStatus <= 0
       connect
       monitor
-      if @mStatus == 1
-        destroy
-	break
-      elsif @mStatus == 2
-	break
-      end
+      #if @mStatus == 1
+      #  destroy
+	#break
+      #elsif @mStatus == 2
+	#break
+
+      #end
     end
   end
 
@@ -117,9 +118,9 @@ private
         dt = Time.now.localtime
         fname =  dt.year.to_s + "_" + dt.month.to_s + "_" + dt.day.to_s
         fh = File.open("logs/" + fname + ".txt", "a")
-        fh.write(str)
+        fh.write(str + "\n")
         fh.close
-        storeDebug("Dumped logs.\n")
+        storeDebug("Dumped logs.")
       when 1 # MYSQL 
         @mDBHandle.storeMessage(msg) 
     end
@@ -131,27 +132,31 @@ private
     #msg = dt.hour.to_s + ":" + dt.min.to_s + ":" + dt.sec.to_s + " -- " + msg
     fname =  dt.year.to_s + "_" + dt.month.to_s + "_" + dt.day.to_s
     fh = File.open("debug-logs/" + fname + ".txt", "a")
-    fh.write(msg)
+    fh.write(msg + "\n")
     fh.close
   end
 
   # connection routine to connect to the irc server
   # it also satisfies basic protocol requirements. 
   def connect
-    @mSocket = Net::Telnet::new("Host" => @mHostname,"Port" => @mPort)
-    print("addr| ", @mSocket.addr.join(":"), "\n")
-    print("peer| ", @mSocket.peeraddr.join(":"), "\n")
-    @mSocket.puts "USER rubybot 0 * Testing"
-    @mSocket.puts "NICK #{@mNick}"
-    @mSocket.puts "JOIN #{@mChannel}"
-    #@mSocket.puts "PRIVMSG NickServ identify ruby-bot"
+    begin
+      @mSocket = Net::Telnet::new("Host" => @mHostname,"Port" => @mPort)
+      print("addr| ", @mSocket.addr.join(":"), "\n")
+      print("peer| ", @mSocket.peeraddr.join(":"), "\n")
+      @mSocket.puts "USER rubybot 0 * Testing"
+      @mSocket.puts "NICK #{@mNick}"
+      @mSocket.puts "JOIN #{@mChannel}"
+      #@mSocket.puts "PRIVMSG NickServ identify ruby-bot"
 
-    # Status of -1 is active / connected
-    # I know, this doesn't make much sense
-    @mStatus = -1
+      # Status of -1 is active / connected
+      # I know, this doesn't make much sense
+      @mStatus = -1
 
-    # print the silly message for the lolz
-    rubicante_message 
+      # print the silly message for the lolz
+      rubicante_message 
+    rescue SocketError
+      storeDebug("can't connect")
+    end
   end
 
   def msgChannel(msg)
@@ -160,8 +165,8 @@ private
 
   def monitor
     r = Regexp.new("(.+)\n") # simple matching
-    until @mSocket.eof? or @mStatus >= 0 do 
-     
+    #until @mSocket.eof? or @mStatus >= 0 do 
+    while @mStatus == -1 
       begin
 	# wait for a simple newline match
 	raw = @mSocket.waitfor("Match" => r, "Timeout" => 200)
@@ -196,21 +201,21 @@ private
 	  store(msg)
 	end
 	if obj == @mNick + ' '
-	  extra =~ /(\w+)([ ]?)(.*)/i
+	  extra =~ /(\w+)[ ]?(.*)/i
 	  dd = $1
 	  if    dd == 'do'
 	    @mSocket.puts $2
-	    puts "do"
+	    #puts "do"
 	  elsif dd == 'op'
-	    puts "op"
+	    #puts "op"
 	    @mSocket.puts 'MODE ' + @mChannel + ' +o ' + nick
-	    puts "op"
+	    #puts "op"
 	  elsif dd == 'reload'
             # A status of 2 is restarting
             @mStatus = 2
             storeDebug("reloading class")	
 	    msgChannel('reloading class')
-	    puts "reload"
+	    #puts "reload"
 	  elsif dd == 'die'
             # A status of 1 is dying
             msgChannel "you killed me!"
@@ -218,7 +223,7 @@ private
             @mStatus = 1
             @mSocket.puts "QUIT"
             @mSocket.close
-	    puts "die"
+	    #puts "die"
           elsif dd == 'uptime'
             uptime = Time.now - @mUptime
 	    #msgChannel(uptime)
