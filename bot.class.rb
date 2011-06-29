@@ -146,7 +146,7 @@ private
       @mSocket.puts "USER rubybot 0 * Testing"
       @mSocket.puts "NICK #{@mNick}"
       @mSocket.puts "JOIN #{@mChannel}"
-      #@mSocket.puts "PRIVMSG NickServ identify ruby-bot"
+      @mSocket.puts "PRIVMSG NickServ identify ruby-bot"
 
       # Status of -1 is active / connected
       # I know, this doesn't make much sense
@@ -176,7 +176,6 @@ private
 	break
       end
 
-      #raw = @mSocket.gets
       
       storeDebug(raw)
 
@@ -195,7 +194,6 @@ private
 	msg = nick + ' joined ' + extra
 	store(msg)
       when "PRIVMSG"
-	#storeDebug("got a msg " + obj + @mChannel + " \n")
         if obj == @mChannel + ' '
 	  msg = '<' + nick + '> ' + extra
 	  store(msg)
@@ -205,13 +203,9 @@ private
 	  dd = $1
 	  if    dd == 'do'
 	    @mSocket.puts $2
-	    #puts "do"
 	  elsif dd == 'op'
-	    #puts "op"
 	    @mSocket.puts 'MODE ' + @mChannel + ' +o ' + nick
-	    #puts "op"
 	  elsif dd == 'reload'
-            # A status of 2 is restarting
             @mStatus = 2
             storeDebug("reloading class")	
 	    msgChannel('reloading class')
@@ -223,11 +217,10 @@ private
             @mStatus = 1
             @mSocket.puts "QUIT"
             @mSocket.close
-	    #puts "die"
           elsif dd == 'uptime'
             uptime = Time.now - @mUptime
+	    str = t3/86400 + ' days '
 	    #msgChannel(uptime)
-	    puts Time.now
 	    puts @mUptime
 	    puts uptime
 	    puts 'uptime is '
@@ -236,33 +229,6 @@ private
       when "QUIT"
 	msg = nick + ' quit with the words: ' + extra
 	store(msg)
-#      elsif raw =~ /rubicante (\w+)(.*)/i
-#	case $1
-#       when "ping"
-#        msgChannel("pong :pingis ")
-#	  storeDebug("ping requested")
-        #when "op"
-        #  @mSocket.puts "MODE 
-#        when "reload"
-	  # A status of 2 is restarting
-#          @mStatus = 2
-#	  storeDebug("reloading class")
-	  #msgChannel("reloading")
-#        when "die"
-#	  # A status of 1 is dying
-#	  msgChannel "you killed me!"
-#          storeDebug("received die command")
-#          @mStatus = 1
-#	  @mSocket.puts "QUIT"
-#	  @mSocket.close
-#	when "do"
-#	  @mSocket.puts $2
-#        end
-#	store(raw)
-#      else
-        # make the message have a prefix of a unix timestamp
-        # and store it only if it's not a ping from server
-#        store(raw)
       end
 
     end
