@@ -219,11 +219,14 @@ private
             @mSocket.close
           elsif dd == 'uptime'
             uptime = Time.now - @mUptime
-	    #str = uptime/86400 + ' days '
-	    msgChannel("I have been active for " + uptime.to_i.to_s + " seconds")
-	    #puts @mUptime
-	    #puts uptime
-	    #puts 'uptime is '
+	    uptime = uptime.to_i
+	    sec    = uptime % 60
+            min    = (uptime/60)%60
+	    hr     = (uptime/3600)%24
+	    dy     = (uptime/86400)
+	    upstring = "I have been active for " + dy.to_s + " days, " + hr.to_s + " hours, " +
+	               min.to_s + " minutes, and " + sec.to_s + " seconds."
+	    msgChannel(upstring)
 	  end
 	end
       when "QUIT"
