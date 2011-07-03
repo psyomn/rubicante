@@ -8,6 +8,7 @@ require 'socket'
 require 'net/telnet'
 require 'db.class.rb'
 require 'ftools'
+require 'process.rb'
 
 class Bot 
  
@@ -94,6 +95,11 @@ class Bot
     end
   end
 
+  def msgChannel(msg)
+    @mSocket.puts("PRIVMSG #{@mChannel} :" + msg)
+  end
+
+
 private
  
   # and our obligatory FF quote here.
@@ -159,10 +165,6 @@ private
     end
   end
 
-  def msgChannel(msg)
-    @mSocket.puts("PRIVMSG #{@mChannel} :" + msg)
-  end
-
   def monitor
     r = Regexp.new("(.+)\n") # simple matching
     #until @mSocket.eof? or @mStatus >= 0 do 
@@ -199,6 +201,7 @@ private
 	  store(msg)
 	end
 	if obj == @mNick + ' '
+	  # these are built in stuff
 	  extra =~ /(\w+)[ ]?(.*)/i
 	  dd = $1
 	  if    dd == 'do'
@@ -227,7 +230,11 @@ private
 	    upstring = "I have been active for " + dy.to_s + " days, " + hr.to_s + " hours, " +
 	               min.to_s + " minutes, and " + sec.to_s + " seconds."
 	    msgChannel(upstring)
+	  elsif dd == 'redef'
+	    load 'process.rb'
 	  end
+	  # extra hooks or whatever
+          process(extra,self)
 	end
       when "QUIT"
 	msg = nick + ' quit with the words: ' + extra
