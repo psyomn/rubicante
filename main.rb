@@ -13,7 +13,7 @@ while 1
     end
   end
   load 'bot.class.rb'
-  botty = Bot.new('irc.freenode.net', 6667, '#spaceconcordiabottest', 'rubicante-beta', 0)
+  botty = Bot.new('irc.freenode.net', 6667, '#spaceconcordia', 'rubicante', 0)
   botty.start
 end
 
