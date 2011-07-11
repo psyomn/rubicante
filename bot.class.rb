@@ -85,13 +85,7 @@ class Bot
     while @mStatus <= 0
       connect
       monitor
-      #if @mStatus == 1
-      #  destroy
-	#break
-      #elsif @mStatus == 2
-	#break
-
-      #end
+      sleep 5
     end
   end
 
@@ -175,11 +169,16 @@ private
       rescue
 	# we've been disconnected; pings from server should happen every ~120-180 seconds
         @mStatus = 0
+	storeDebug("I've lost the bleeps, I lost the sweeps, and I lost the creeps.")
 	break
       end
 
+
+      storeDebug("processing")
       
-      storeDebug(raw)
+      if raw
+        storeDebug(raw)
+      end
 
       raw =~ /(:([^!]+)![^@]+@[\S]+ )?([A-Z]+) ([#\w\-\.]+ )?:(.*)/i
       nick    = $2
